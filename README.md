@@ -1,4 +1,4 @@
-# Proforge-4
+# Proforge-4 High Speed Tool Changing 3D Printer
 
 ![Proforge 4 Render](https://github.com/Makertech3D/Proforge-4/assets/26495395/ecfccd95-4509-42c9-8bf7-c079417ff488)
 
