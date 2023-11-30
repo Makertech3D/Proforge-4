@@ -6,5 +6,5 @@ Official repo for the Proforge 4 Toolchanger 3D printer
 
 # Proforge 4 Build Manual
 
-The Official build guides for the Proofrge 4 3D printer can be found [here](https://makertech-3d.dozuki.com/c/Proforge_4)
+The Official build guides for the Proforge 4 3D printer can be found [here](https://makertech-3d.dozuki.com/c/Proforge_4)
 
