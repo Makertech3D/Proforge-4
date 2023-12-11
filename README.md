@@ -13,3 +13,4 @@ With an ample build volume of 400x300x400mm (X, Y, and Z respectively), the Prof
 
 The Official build guides for the Proforge 4 3D printer can be found [here](https://makertech-3d.dozuki.com/c/Proforge_4)
 
+The BOM (Bill of Materials) can be found [here](https://docs.google.com/spreadsheets/d/1Y5VUGZzWMNDWVGi7vUqABhzv31rmcmznpvWCIOyDUW4/edit?usp=sharing).
