@@ -3,6 +3,7 @@
 # This module has been adapted from code written by Kevin O'Connor <kevin@koconnor.net> and Martin Hierholzer <martin@hierholzer.info>
 # Sourced from https://github.com/ben5459/Klipper_ToolChanger/blob/master/probe_multi_axis.py
 
+import re
 import logging
 direction_types = {'x+': [0, +1], 'x-': [0, -1], 'y+': [1, +1], 'y-': [1, -1],
                    'z+': [2, +1], 'z-': [2, -1]}
@@ -97,9 +98,7 @@ class ToolsCalibrate:
         self.gcode.respond_info("Sensor location at %.6f,%.6f,%.6f"
                                 % (self.last_result[0], self.last_result[1], self.last_result[2]))
 
-
-
-
+ 
 
 
     cmd_TOOL_CALIBRATE_TOOL_OFFSET_1_help = "Calibrate tool 1 offset relative to tool 0"
@@ -107,9 +106,55 @@ class ToolsCalibrate:
         if not self.sensor_location:
             raise gcmd.error("No recorded sensor location, please run TOOL_LOCATE_SENSOR first")
         location = self.locate_sensor(gcmd)
-        self.last_result=[location[i]-self.sensor_location[i] for i in range(3)]
-        self.gcode.respond_info("Tool 1 offset is %.6f,%.6f,%.6f"
-                                % (self.last_result[0], self.last_result[1], self.last_result[2]))
+        self.last_result = [location[i] - self.sensor_location[i] for i in range(3)]
+        self.gcode.respond_info("Tool 1 offset is %.6f,%.6f,%.6f" % (self.last_result[0], self.last_result[1], self.last_result[2]))
+        
+        try:
+            # Define the file path
+            cfg_file_path = '/home/biqu/printer_data/config/variables.cfg'
+            
+            # Read the contents of the variable.cfg file
+            try:
+                with open(cfg_file_path, 'r') as file:
+                    lines = file.readlines()
+            except FileNotFoundError:
+                self.gcode.respond_info(f"Error: The file {cfg_file_path} was not found.")
+                return
+            except IOError:
+                self.gcode.respond_info(f"Error: Could not read the file {cfg_file_path}.")
+                return
+            
+            # Define the pattern to find the lines to replace
+            offset_patterns = {
+                'one_x_offset': r'one_x_offset\s*=\s*[-+]?[0-9]*\.?[0-9]+',
+                'one_y_offset': r'one_y_offset\s*=\s*[-+]?[0-9]*\.?[0-9]+',
+                'one_z_offset': r'one_z_offset\s*=\s*[-+]?[0-9]*\.?[0-9]+'
+            }
+            
+            # Replace the old offsets with new ones
+            updated_lines = []
+            for line in lines:
+                if re.match(offset_patterns['one_x_offset'], line):
+                    updated_lines.append(f'one_x_offset = {self.last_result[0]:.6f}\n')
+                elif re.match(offset_patterns['one_y_offset'], line):
+                    updated_lines.append(f'one_y_offset = {self.last_result[1]:.6f}\n')
+                elif re.match(offset_patterns['one_z_offset'], line):
+                    updated_lines.append(f'one_z_offset = {self.last_result[2]:.6f}\n')
+                else:
+                    updated_lines.append(line)
+            
+            # Write the updated contents back to the variable.cfg file
+            try:
+                with open(cfg_file_path, 'w') as file:
+                    file.writelines(updated_lines)
+            except IOError:
+                self.gcode.respond_info(f"Error: Could not write to the file {cfg_file_path}.")
+                return
+
+            self.gcode.respond_info("Offsets updated successfully.")
+
+        except Exception as e:
+            self.gcode.respond_info(f"An unexpected error occurred: {e}")
 
 # Write offset values to variables.cfg
 
@@ -123,6 +168,54 @@ class ToolsCalibrate:
         self.gcode.respond_info("Tool 2 offset is %.6f,%.6f,%.6f"
                                 % (self.last_result[0], self.last_result[1], self.last_result[2]))
 
+        try:
+            # Define the file path
+            cfg_file_path = '/home/biqu/printer_data/config/variables.cfg'
+            
+            # Read the contents of the variable.cfg file
+            try:
+                with open(cfg_file_path, 'r') as file:
+                    lines = file.readlines()
+            except FileNotFoundError:
+                self.gcode.respond_info(f"Error: The file {cfg_file_path} was not found.")
+                return
+            except IOError:
+                self.gcode.respond_info(f"Error: Could not read the file {cfg_file_path}.")
+                return
+            
+            # Define the pattern to find the lines to replace
+            offset_patterns = {
+                'two_x_offset': r'two_x_offset\s*=\s*[-+]?[0-9]*\.?[0-9]+',
+                'two_y_offset': r'two_y_offset\s*=\s*[-+]?[0-9]*\.?[0-9]+',
+                'two_z_offset': r'two_z_offset\s*=\s*[-+]?[0-9]*\.?[0-9]+'
+            }
+            
+            # Replace the old offsets with new ones
+            updated_lines = []
+            for line in lines:
+                if re.match(offset_patterns['two_x_offset'], line):
+                    updated_lines.append(f'two_x_offset = {self.last_result[0]:.6f}\n')
+                elif re.match(offset_patterns['two_y_offset'], line):
+                    updated_lines.append(f'two_y_offset = {self.last_result[1]:.6f}\n')
+                elif re.match(offset_patterns['two_z_offset'], line):
+                    updated_lines.append(f'two_z_offset = {self.last_result[2]:.6f}\n')
+                else:
+                    updated_lines.append(line)
+            
+            # Write the updated contents back to the variable.cfg file
+            try:
+                with open(cfg_file_path, 'w') as file:
+                    file.writelines(updated_lines)
+            except IOError:
+                self.gcode.respond_info(f"Error: Could not write to the file {cfg_file_path}.")
+                return
+
+            self.gcode.respond_info("Offsets updated successfully.")
+
+        except Exception as e:
+            self.gcode.respond_info(f"An unexpected error occurred: {e}")
+
+
     cmd_TOOL_CALIBRATE_TOOL_OFFSET_3_help = "Calibrate tool 3 offset relative to tool 0"
     def cmd_TOOL_CALIBRATE_TOOL_OFFSET_3(self, gcmd):
         if not self.sensor_location:
@@ -132,6 +225,52 @@ class ToolsCalibrate:
         self.gcode.respond_info("Tool 3 offset is %.6f,%.6f,%.6f"
                                 % (self.last_result[0], self.last_result[1], self.last_result[2]))
 
+        try:
+            # Define the file path
+            cfg_file_path = '/home/biqu/printer_data/config/variables.cfg'
+            
+            # Read the contents of the variable.cfg file
+            try:
+                with open(cfg_file_path, 'r') as file:
+                    lines = file.readlines()
+            except FileNotFoundError:
+                self.gcode.respond_info(f"Error: The file {cfg_file_path} was not found.")
+                return
+            except IOError:
+                self.gcode.respond_info(f"Error: Could not read the file {cfg_file_path}.")
+                return
+            
+            # Define the pattern to find the lines to replace
+            offset_patterns = {
+                'three_x_offset': r'three_x_offset\s*=\s*[-+]?[0-9]*\.?[0-9]+',
+                'three_y_offset': r'three_y_offset\s*=\s*[-+]?[0-9]*\.?[0-9]+',
+                'three_z_offset': r'three_z_offset\s*=\s*[-+]?[0-9]*\.?[0-9]+'
+            }
+            
+            # Replace the old offsets with new ones
+            updated_lines = []
+            for line in lines:
+                if re.match(offset_patterns['three_x_offset'], line):
+                    updated_lines.append(f'three_x_offset = {self.last_result[0]:.6f}\n')
+                elif re.match(offset_patterns['three_y_offset'], line):
+                    updated_lines.append(f'three_y_offset = {self.last_result[1]:.6f}\n')
+                elif re.match(offset_patterns['three_z_offset'], line):
+                    updated_lines.append(f'three_z_offset = {self.last_result[2]:.6f}\n')
+                else:
+                    updated_lines.append(line)
+            
+            # Write the updated contents back to the variable.cfg file
+            try:
+                with open(cfg_file_path, 'w') as file:
+                    file.writelines(updated_lines)
+            except IOError:
+                self.gcode.respond_info(f"Error: Could not write to the file {cfg_file_path}.")
+                return
+
+            self.gcode.respond_info("Offsets updated successfully.")
+
+        except Exception as e:
+            self.gcode.respond_info(f"An unexpected error occurred: {e}")
 
 
 
